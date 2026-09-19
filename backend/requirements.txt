@@ -3,6 +3,7 @@ uvicorn[standard]==0.34.0
 pydantic==2.10.6
 python-multipart==0.0.20
 pypdf==5.1.0
+python-docx==1.1.2
 langgraph==0.2.62
 sentence-transformers==3.3.1
 sqlalchemy==2.0.36

@@ -4,6 +4,7 @@ import re
 import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
+from functools import lru_cache
 from typing import Any
 
 from .data import COURSES, DEFAULT_PROFILE, JOBS
@@ -18,7 +19,7 @@ except Exception:
 ALIASES = {
     "js": "JavaScript", "javascript": "JavaScript", "react.js": "React", "reactjs": "React",
     "react": "React", "html5": "HTML", "css3": "CSS", "postgres": "SQL", "postgresql": "SQL",
-    "fast api": "FastAPI", "rest": "REST APIs", "rest api": "REST APIs", "ml": "Machine Learning",
+    "fast api": "FastAPI", "fastapi": "FastAPI", "rest": "REST APIs", "rest api": "REST APIs", "ml": "Machine Learning",
     "tensorflow": "TensorFlow", "pytorch": "PyTorch", "k8s": "Kubernetes", "a/b testing": "A/B Testing",
 }
 
@@ -42,13 +43,18 @@ def semantic_similarity(profile_text: str, job: dict[str, Any]) -> float:
     """Deterministic lexical fallback; uses SentenceTransformer when installed."""
     try:
         from sentence_transformers import SentenceTransformer, util  # type: ignore
-        model = SentenceTransformer("all-MiniLM-L6-v2")
+        model = _embedding_model()
         a = model.encode(profile_text, convert_to_tensor=True)
         b = model.encode(" ".join([job["title"], *job["required_skills"], *job["interests"]]), convert_to_tensor=True)
         return round(max(0.0, min(1.0, float(util.cos_sim(a, b)[0][0]))), 4)
     except Exception:
         a, b = tokenize(profile_text), tokenize(" ".join([job["title"], *job["required_skills"], *job["interests"]]))
         return round(len(a & b) / max(1, len(a | b)), 4)
+
+@lru_cache(maxsize=1)
+def _embedding_model() -> Any:
+    from sentence_transformers import SentenceTransformer  # type: ignore
+    return SentenceTransformer("all-MiniLM-L6-v2")
 
 def parse_profile(profile: dict[str, Any] | None = None, resume_text: str = "") -> dict[str, Any]:
     incoming = {**DEFAULT_PROFILE, **(profile or {})}

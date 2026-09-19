@@ -16,3 +16,13 @@ class AnalysisRecord(Base):
 
 def init_db() -> None:
     Base.metadata.create_all(engine)
+
+def save_analysis(analysis: dict) -> None:
+    with SessionLocal() as session:
+        session.merge(AnalysisRecord(id=analysis["id"], target_job=analysis.get("target_job", {}).get("title", ""), payload=analysis))
+        session.commit()
+
+def get_analysis(analysis_id: str) -> dict | None:
+    with SessionLocal() as session:
+        record = session.get(AnalysisRecord, analysis_id)
+        return record.payload if record else None
