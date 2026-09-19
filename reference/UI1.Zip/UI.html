@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>SkillPath AI — Dark Career Intelligence</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
+
+:root{
+  --bg:#070b12;--white:#0d1420;--ink:#eef5ff;--muted:#8b9bb2;--line:#202d3d;
+  --blue:#248cff;--violet:#19b9e8;--cyan:#22d3ee;--green:#20c997;
+  --dark:#0b111b;--dark2:#111c2c;--shadow:0 18px 45px rgba(36,51,83,.09)
+}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:"DM Sans",sans-serif}
+button,input,textarea,select{font:inherit}button{cursor:pointer}a{text-decoration:none;color:inherit}.landing-shell{min-height:100vh;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;background:radial-gradient(circle at top left,#10304e,#070b12 48%)}.landing-bg{position:absolute;inset:0;background:linear-gradient(120deg,rgba(18,35,53,.9),rgba(9,14,22,.96));mask-image:radial-gradient(circle at center,black 50%,transparent 100%)}.landing-content{position:relative;z-index:1;width:min(1150px,90%);padding:54px 24px}.landing-brand{display:flex;align-items:center;gap:12px;font:700 24px "Space Grotesk";margin-bottom:36px}.landing-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:38px;align-items:center}.landing-copy h1{font:700 58px/1.02 "Space Grotesk";letter-spacing:-2px;margin:18px 0 18px;max-width:560px}.landing-copy p{max-width:560px;color:#a0afc3;font-size:16px;line-height:1.7}.landing-stats{display:flex;gap:22px;flex-wrap:wrap;margin-top:28px}.landing-stats div{min-width:130px;background:rgba(19,29,40,.8);border:1px solid rgba(118,142,181,.18);border-radius:14px;padding:18px 16px}.landing-stats strong{display:block;font:700 28px "Space Grotesk";margin-bottom:5px}.landing-stats span{font-size:11px;color:#93a5c0}.auth-card{padding:28px 26px;border-radius:22px;background:rgba(11,18,27,.87);border:1px solid rgba(146,166,201,.2);box-shadow:0 24px 55px rgba(4,8,17,.45)}.auth-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}.mini-label{margin:0 0 6px;color:#5bb9ff;font-size:10px;letter-spacing:.12em;text-transform:uppercase;font-weight:800}.auth-header h2{margin:0;font:700 34px "Space Grotesk"}.status-dot{color:#43d39e;font-size:10px;letter-spacing:.1em;text-transform:uppercase}.field-label{display:block;margin:14px 0 8px;color:#b6c1d1;font-size:12px;font-weight:700}.auth-card input{width:100%;padding:13px 12px;border-radius:12px;border:1px solid rgba(140,162,193,.26);background:#0d1725;color:#edf5ff;outline:none}.auth-card input:focus{border-color:#3aa1ff;box-shadow:0 0 0 3px rgba(58,161,255,.12)}.auth-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:14px 0 20px;color:#aebcd0;font-size:12px}.check-wrap{display:flex;align-items:center;gap:8px}.check-wrap input{width:14px;height:14px}.auth-row a,.signup-text a{color:#67bdfd}.landing-btn{display:block;width:100%;margin:10px 0 0}.signup-text{margin-top:18px;text-align:center;color:#929fb3;font-size:12px}.app{display:flex;min-height:100vh}
+.sidebar{width:245px;position:fixed;left:0;top:0;bottom:0;background:#0d1420;border-right:1px solid var(--line);padding:22px 15px;z-index:20}
+.brand{display:flex;align-items:center;gap:10px;padding:4px 10px 28px;font:700 20px "Space Grotesk"}
+.logo{width:39px;height:39px;border-radius:13px;background:linear-gradient(135deg,#168cff,#22d3ee);display:grid;place-items:center;color:white;font-weight:900;box-shadow:0 9px 25px #168cff33}
+.logo:after{content:"✦";font-size:19px}.nav{display:grid;gap:6px}.nav button{width:100%;border:0;background:transparent;color:#8b9bb2;padding:12px;border-radius:11px;text-align:left;display:flex;gap:12px;align-items:center;transition:.2s}
+.nav button:hover{background:#111d2d;color:#4da3ff}.nav button.active{background:linear-gradient(90deg,#10233b,#0f1b2b);color:#4157dd;font-weight:700;box-shadow:inset 3px 0 #168cff}.ni{width:22px;text-align:center;font-size:17px}
+.quote{position:absolute;bottom:18px;left:15px;right:15px;height:220px;border-radius:17px;overflow:hidden;background:linear-gradient(160deg,#10263b,#0c1828);padding:19px;color:#52647e}
+.quote:after{content:"";position:absolute;right:-35px;bottom:-50px;width:150px;height:150px;border-radius:50%;background:#a8c7e866}
+.quote b{font-size:12px}.quote p{font:500 15px/1.55 "Space Grotesk";margin:18px 0}.quote small{color:#8190a7}
+.main{margin-left:245px;width:calc(100% - 245px)}.top{height:72px;background:#0d1420;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 30px;position:sticky;top:0;z-index:10}
+.search{width:390px;background:#070b12;border:1px solid #edf0f5;border-radius:12px;padding:10px 14px;color:#95a0b3;font-size:12px}.topright{display:flex;align-items:center;gap:15px}.hello{font-size:12px;color:#66748c}.avatar{width:35px;height:35px;border-radius:50%;background:linear-gradient(135deg,#5369ef,#16a5df);color:#0d1420;display:grid;place-items:center;font-size:12px;font-weight:800}
+.content{max-width:1450px;margin:auto;padding:27px 30px 45px}.panel{display:none}.panel.active{display:block;animation:up .25s ease}@keyframes up{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+.hero{height:365px;border-radius:25px;overflow:hidden;position:relative;background:linear-gradient(115deg,#0b121d,#101b2b 58%,#12253a);border:1px solid #1e2b3c;box-shadow:var(--shadow)}
+.hero:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 70% 15%,#cfd7ff99,transparent 24%),radial-gradient(circle at 88% 80%,#bceef055,transparent 27%)}
+.hero-grid{position:absolute;right:0;top:0;width:52%;height:100%;background:linear-gradient(120deg,transparent,#0d142000),linear-gradient(90deg,#0d142000,#8ea3ff10 1px,transparent 1px);background-size:auto,34px 34px;mask-image:linear-gradient(to right,transparent,#000 40%)}
+.hero-copy{position:relative;z-index:2;padding:42px;max-width:690px}.eyebrow{color:#58b9ff;font-size:11px;font-weight:800;letter-spacing:.7px}.hero h1{font:700 48px/1.04 "Space Grotesk";letter-spacing:-2px;margin:15px 0}.fade-text{background:linear-gradient(90deg,#3aa5ff,#22d3ee 45%,#38e8ff);-webkit-background-clip:text;background-clip:text;color:transparent}.hero p{font-size:14px;line-height:1.7;color:#8b9bb2;max-width:600px}
+.btn{border:0;border-radius:10px;padding:12px 17px;font-size:12px;font-weight:800}.primary{color:white;background:linear-gradient(135deg,#168cff,#168cff);box-shadow:0 10px 25px #168cff30}.secondary{background:#0d1420;border:1px solid var(--line);color:#34445e;margin-left:8px}
+.hero-visual{position:absolute;right:28px;bottom:22px;width:350px;height:260px}.mount{position:absolute;bottom:0;left:0;right:0;height:145px;background:linear-gradient(145deg,#1a3b57,#19324c);clip-path:polygon(0 100%,25% 47%,39% 72%,57% 20%,73% 66%,87% 39%,100% 100%);opacity:.9}.person{position:absolute;right:100px;bottom:72px;width:28px;height:65px;border-radius:16px 16px 7px 7px;background:#1b3047;transform:rotate(-5deg)}.person:before{content:"";position:absolute;top:-19px;left:4px;width:21px;height:21px;border-radius:50%;background:#c38e70}.sign{position:absolute;right:0;top:42px;display:grid;gap:7px}.sign span{padding:7px 12px;background:#16283e;color:#0d1420;border-radius:5px 12px 5px 12px;font-size:9px;font-weight:800;box-shadow:0 5px 14px #273b5b22}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:18px}.card{background:#0d1420;border:1px solid var(--line);border-radius:16px;box-shadow:0 7px 25px #33466d08;padding:18px}.stat{display:flex;justify-content:space-between}.stat small{font-size:10px;color:#7d8ba2}.stat strong{font:700 28px "Space Grotesk";display:block;margin-top:6px}.icon{width:40px;height:40px;border-radius:11px;background:#10243a;display:grid;place-items:center;color:#54b8ff}
+.section{display:flex;justify-content:space-between;align-items:end;margin:28px 0 13px}.section h2{font:700 19px "Space Grotesk";margin:0}.section p{font-size:11px;color:#8591a6;margin:5px 0 0}.section a{font-size:11px;color:#4f62df;font-weight:700;cursor:pointer}
+.split{display:grid;grid-template-columns:1.35fr .65fr;gap:14px}.profile{min-height:215px}.profile-head{display:flex;justify-content:space-between}.profile-name{font:700 16px "Space Grotesk"}.profile-meta{font-size:11px;color:#7d8ba2;line-height:1.8}.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:13px}.chip{font-size:10px;padding:6px 9px;border-radius:20px;background:#10263e;color:#65bfff}.match{min-height:215px}.circle{width:112px;height:112px;border-radius:50%;margin:10px auto;background:conic-gradient(#2fc896 72%,#263548 0);display:grid;place-items:center;position:relative}.circle:after{content:"72%";width:88px;height:88px;border-radius:50%;background:white;display:grid;place-items:center;font:700 22px "Space Grotesk";color:#1b3047}.match-row{display:flex;justify-content:space-around;font-size:10px;color:#8b9bb2}
+.jobs{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.job{transition:.2s}.job:hover{transform:translateY(-3px);box-shadow:0 15px 35px #40508012}.jobtop{display:flex;justify-content:space-between}.company{font-size:10px;color:#8295ad;margin-top:4px}.jobtitle{font:700 13px "Space Grotesk"}.percent{font-size:10px;font-weight:800;color:#18a974;border:1px solid #1c5b4a;background:#0c2b22;border-radius:15px;padding:6px 8px}.tags{display:flex;gap:5px;flex-wrap:wrap;margin:13px 0}.tag{font-size:9px;color:#9fb0c5;background:#142131;border:1px solid #263649;padding:5px 7px;border-radius:6px}.jobfoot{border-top:1px solid var(--line);padding-top:10px;display:flex;justify-content:space-between;color:#8295ad;font-size:10px}.jobfoot button{border:0;background:#102c47;color:#64baff;border-radius:7px;padding:7px 9px;font-size:9px;font-weight:800}
+.dark-panel{background:linear-gradient(145deg,#0b111b,#18243b);border-radius:20px;color:#0d1420;border:1px solid #293852;box-shadow:var(--shadow);padding:25px}.dark-panel .muted{color:#8f9db6}.ai-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:14px}.chat{min-height:470px}.ai-title{display:flex;justify-content:space-between;align-items:center}.online{color:#5fe2aa;font-size:10px}.bubble{background:#1c2940;border:1px solid #2a3a57;border-radius:14px;padding:15px;margin-top:18px;font-size:12px;line-height:1.6}.quick{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}.quick button{background:#17243a;border:1px solid #2a3955;color:#c9d2e2;border-radius:9px;padding:10px;font-size:10px;text-align:left}.input-dark{display:flex;margin-top:14px;background:#17243a;border:1px solid #2b3a55;border-radius:11px;overflow:hidden}.input-dark input{flex:1;background:transparent;border:0;outline:0;color:#0d1420;padding:12px;font-size:11px}.input-dark button{background:#168cff;color:#0d1420;border:0;width:42px}.journey{margin-top:22px}.step{display:flex;gap:12px;position:relative;padding:13px 0}.step:not(:last-child):before{content:"";position:absolute;left:9px;top:32px;height:34px;border-left:1px dashed #44516a}.step-dot{width:19px;height:19px;border-radius:50%;background:#263752;display:grid;place-items:center;font-size:9px;color:#0d1420;z-index:2}.step.done .step-dot{background:#1fb77c}.step.current .step-dot{background:#168cff;box-shadow:0 0 0 5px #168cff21}.step b{font-size:11px}.step p{font-size:9px;color:#8d9ab0;margin:4px 0 0}
+.form{max-width:920px}.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:15px}.field{margin-bottom:15px}.field.full{grid-column:1/-1}.field label{display:block;font-size:11px;font-weight:700;color:#9aabc0;margin-bottom:6px}.field input,.field textarea,.field select{width:100%;padding:12px;border:1px solid #273548;background:#0d1420;border-radius:10px;outline:0;color:#1b2a44}.field textarea{min-height:115px}.analysis{display:grid;grid-template-columns:1fr 1fr;gap:14px}.big{font:700 52px "Space Grotesk";color:#18ad76}.bar{height:8px;background:#223144;border-radius:8px;overflow:hidden}.bar i{display:block;height:100%;width:84%;background:linear-gradient(90deg,#20c997,#22d3ee)}.gap{display:flex;justify-content:space-between;padding:13px 0;border-bottom:1px solid var(--line);font-size:11px}.pill{font-size:9px;padding:5px 8px;border-radius:15px;font-weight:800}.yes{background:#e9faf3;color:#139664}.no{background:#0d1420;color:#ffc45c}.trace{margin-top:15px;display:grid;gap:9px}.trace div{font-size:10px;color:#8b9bb2}.trace i{display:inline-block;width:7px;height:7px;background:#2aa8ff;border-radius:50%;margin-right:7px}.course{display:flex;justify-content:space-between;border-bottom:1px solid var(--line);padding:15px 0}.course h4{margin:0;font:700 12px "Space Grotesk"}.course p{margin:4px 0 0;color:#8295ad;font-size:10px}.course b{color:#20c997;font-size:10px;white-space:nowrap}
+@media(max-width:1100px){.hero-visual{opacity:.35}.jobs{grid-template-columns:1fr 1fr}.stats{grid-template-columns:1fr 1fr}}
+@media(max-width:800px){.sidebar{width:68px}.brand span,.nav label,.quote{display:none}.main{margin-left:68px;width:calc(100% - 68px)}.content{padding:18px}.top{padding:0 18px}.search{width:210px}.split,.ai-grid,.analysis,.formgrid{grid-template-columns:1fr}.jobs{grid-template-columns:1fr}.hero-copy{padding:30px}.hero h1{font-size:38px}.hero-visual{display:none}}
+</style>
+</head>
+<body>
+<div class="landing-shell" id="landingShell">
+  <div class="landing-bg"></div>
+  <div class="landing-content">
+    <div class="landing-brand">
+      <div class="logo"></div>
+      <span>SkillPath AI</span>
+    </div>
+
+    <div class="landing-grid">
+      <div class="landing-copy">
+        <div class="eyebrow">CAREER INTELLIGENCE FOR EVERY STEP</div>
+        <h1>Turn your skills into a smarter career path.</h1>
+        <p>Track your strengths, discover your missing skills, and unlock the right opportunities with AI-powered guidance.</p>
+        <div class="landing-stats">
+          <div><strong>84%</strong><span>Profile Match</span></div>
+          <div><strong>50+</strong><span>Curated roles</span></div>
+          <div><strong>6W</strong><span>Suggested path</span></div>
+        </div>
+      </div>
+
+      <div class="auth-card">
+        <div class="auth-header">
+          <div>
+            <p class="mini-label">Welcome back</p>
+            <h2 id="authTitle">Login</h2>
+          </div>
+          <span class="status-dot">● Active</span>
+        </div>
+
+        <form id="loginForm">
+          <label class="field-label">Email address</label>
+          <input type="email" id="email" placeholder="you@example.com" required>
+
+          <label class="field-label">Password</label>
+          <input type="password" id="password" placeholder="••••••••" required>
+
+          <div class="auth-row">
+            <label class="check-wrap"><input type="checkbox"> <span>Remember me</span></label>
+            <a href="#">Forgot password?</a>
+          </div>
+
+          <button type="submit" class="btn primary landing-btn">Sign in</button>
+        </form>
+
+        <form id="signupForm" style="display:none;">
+          <label class="field-label">Full name</label>
+          <input type="text" id="signupName" placeholder="Your name" required>
+
+          <label class="field-label">Email address</label>
+          <input type="email" id="signupEmail" placeholder="you@example.com" required>
+
+          <label class="field-label">Create password</label>
+          <input type="password" id="signupPassword" placeholder="At least 6 characters" minlength="6" required>
+
+          <label class="field-label">Confirm password</label>
+          <input type="password" id="signupConfirm" placeholder="Repeat your password" minlength="6" required>
+
+          <button type="submit" class="btn primary landing-btn">Create my account</button>
+        </form>
+
+        <p class="signup-text" id="authSwitch">New here? <a href="#" id="showSignup">Create an account</a></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="app" id="app" style="display:none;">
+<aside class="sidebar">
+  <div class="brand"><div class="logo"></div><span>SkillPath AI</span></div>
+  <nav class="nav">
+    <button class="active" onclick="show('home',this)"><span class="ni">⌂</span><label>Home</label></button>
+    <button onclick="show('profile',this)"><span class="ni">♙</span><label>My Profile</label></button>
+    <button onclick="show('jobs',this)"><span class="ni">▣</span><label>Find Jobs</label></button>
+    <button onclick="show('analysis',this)"><span class="ni">◈</span><label>Skill Analysis</label></button>
+    <button onclick="show('learning',this)"><span class="ni">▤</span><label>Learning Path</label></button>
+    <button onclick="show('ai',this)"><span class="ni">✦</span><label>AI Assistant</label></button>
+  </nav>
+  <div class="quote"><b>YOUR CAREER, ONE STEP AT A TIME</b><p>“A small step in learning today, a giant leap for your tomorrow.”</p><small>Keep building. Keep growing.</small></div>
+</aside>
+
+<main class="main">
+<header class="top"><div class="search">⌕ &nbsp; Search jobs, skills, or courses... <span style="float:right;color:#a8b2c2">Ctrl K</span></div><div class="topright"><span class="hello">Hello, <b>User</b> 👋</span><div class="avatar">S</div></div></header>
+<div class="content">
+
+<section id="home" class="panel active">
+  <div class="hero"><div class="hero-grid"></div><div class="hero-copy"><div class="eyebrow">AI-POWERED CAREER NAVIGATION</div><h1>Your Career Journey<br><span class="fade-text">Starts Here.</span></h1><p>Discover relevant jobs, understand exactly which skills you're missing, and get a personalized learning path — all through one intelligent career assistant.</p><button class="btn primary" onclick="show('profile',document.querySelectorAll('.nav button')[1])">Start Analysis →</button><button class="btn secondary" onclick="show('ai',document.querySelectorAll('.nav button')[5])">Watch AI Demo ▶</button></div><div class="hero-visual"><div class="mount"></div><div class="person"></div><div class="sign"><span>SKILLS</span><span>OPPORTUNITIES</span><span>GROWTH</span><span>SUCCESS</span></div></div></div>
+
+  <div class="stats"><div class="card stat"><div><small>Curated Job Postings</small><strong>50+</strong></div><div class="icon">▣</div></div><div class="card stat"><div><small>Learning Resources</small><strong>100+</strong></div><div class="icon">▤</div></div><div class="card stat"><div><small>In-Demand Skills</small><strong>10+</strong></div><div class="icon">◇</div></div><div class="card stat"><div><small>Profile Match</small><strong>72%</strong></div><div class="icon">✦</div></div></div>
+
+  <div class="section"><div><h2>Your Career Snapshot</h2><p>A quick view of where you stand today.</p></div><a onclick="show('profile',document.querySelectorAll('.nav button')[1])">Edit Profile →</a></div>
+  <div class="split"><div class="card profile"><div class="profile-head"><div><div class="profile-name">User</div><div class="profile-meta">B.Tech Computer Science<br>⌖ Bengaluru, Karnataka</div></div><button class="btn secondary" style="margin:0;padding:7px 10px">Edit</button></div><div class="chips"><span class="chip">Python</span><span class="chip">SQL</span><span class="chip">Machine Learning</span><span class="chip">Excel</span><span class="chip">Problem Solving</span><span class="chip">+ Add Skill</span></div><div style="display:flex;gap:35px;margin-top:22px;color:#8b9bb2;font-size:10px"><span>◷ <b style="color:#233653">3 Years</b><br>Experience</span><span>◉ <b style="color:#233653">Data Science</b><br>Interest</span><span>⌖ <b style="color:#233653">Bengaluru</b><br>Preferred</span><span>▣ <b style="color:#233653">Full-time</b><br>Job Type</span></div></div>
+  <div class="card match"><div style="display:flex;justify-content:space-between"><b style="font:700 14px 'Space Grotesk'">Skill Match Overview</b><span style="font-size:10px;color:#4da8ff">View details →</span></div><div class="circle"></div><div class="match-row"><span>● Matched <b style="color:#1b3047">8</b></span><span>● Missing <b style="color:#1b3047">4</b></span><span>● Partial <b style="color:#1b3047">3</b></span></div></div></div>
+
+  <div class="section"><div><h2>Top Job Matches for You</h2><p>Opportunities aligned with your current profile.</p></div><a onclick="show('jobs',document.querySelectorAll('.nav button')[2])">See All →</a></div>
+  <div class="jobs"><div class="card job"><div class="jobtop"><div><div class="jobtitle">Data Analyst</div><div class="company">TechNova · Bengaluru</div></div><span class="percent">84%</span></div><div class="tags"><span class="tag">Python</span><span class="tag">SQL</span><span class="tag">Excel</span><span class="tag">Power BI</span></div><div class="jobfoot"><span>₹5–8 LPA</span><button onclick="show('analysis',document.querySelectorAll('.nav button')[3])">View Details →</button></div></div>
+  <div class="card job"><div class="jobtop"><div><div class="jobtitle">ML Engineer</div><div class="company">Innova Labs · Bengaluru</div></div><span class="percent">78%</span></div><div class="tags"><span class="tag">Python</span><span class="tag">TensorFlow</span><span class="tag">ML</span></div><div class="jobfoot"><span>₹6–10 LPA</span><button onclick="show('analysis',document.querySelectorAll('.nav button')[3])">View Details →</button></div></div>
+  <div class="card job"><div class="jobtop"><div><div class="jobtitle">Data Scientist</div><div class="company">DataForge · Bengaluru</div></div><span class="percent">70%</span></div><div class="tags"><span class="tag">Python</span><span class="tag">SQL</span><span class="tag">AWS</span></div><div class="jobfoot"><span>₹12–20 LPA</span><button onclick="show('analysis',document.querySelectorAll('.nav button')[3])">View Details →</button></div></div></div>
+</section>
+
+<section id="profile" class="panel"><div class="section"><div><h2>Build Your Profile</h2><p>Tell the agents about your current skills and goals.</p></div></div><div class="card form"><div class="formgrid"><div class="field"><label>Education</label><input value="B.Tech Computer Science"></div><div class="field"><label>Experience</label><select><option>Student / Fresher</option><option>0–2 years</option><option>2–5 years</option></select></div><div class="field"><label>Preferred location</label><input value="Bengaluru"></div><div class="field"><label>Career interest</label><input value="Data Analytics"></div><div class="field full"><label>Describe your skills</label><textarea>I know Python, SQL and Excel. I have basic machine learning knowledge and I am interested in data analytics.</textarea></div></div><button class="btn primary" onclick="analyze()">Analyze My Career Fit ✦</button></div></section>
+
+<section id="jobs" class="panel"><div class="section"><div><h2>Find Jobs</h2><p>Explore curated postings and see exactly why they match.</p></div><span style="font-size:10px;color:#75849c">50+ CURATED POSTINGS</span></div><div class="jobs">
+<script>
+const jobData=[
+["Data Analyst","TechNova","84%","₹5–8 LPA",["Python","SQL","Excel","Power BI"]],
+["Business Analyst","FinEdge","78%","₹5–9 LPA",["Excel","SQL","Power BI","Business Analysis"]],
+["ML Engineer","Innova Labs","71%","₹6–10 LPA",["Python","Machine Learning","TensorFlow","Docker"]],
+["Data Scientist","DataForge","70%","₹12–20 LPA",["Python","SQL","AWS","Statistics"]],
+["Product Analyst","NovaWorks","67%","₹6–11 LPA",["SQL","Excel","Analytics","A/B Testing"]],
+["AI Intern","FutureAI","64%","₹25–40k/mo",["Python","ML","Pandas","Git"]]
+];
+document.write(jobData.map(j=>`<div class="card job"><div class="jobtop"><div><div class="jobtitle">${j[0]}</div><div class="company">${j[1]} · Bengaluru</div></div><span class="percent">${j[2]}</span></div><div class="tags">${j[4].map(x=>`<span class="tag">${x}</span>`).join("")}</div><div class="jobfoot"><span>${j[3]} · 0–2 yrs</span><button onclick="show('analysis',document.querySelectorAll('.nav button')[3])">Analyze Gap →</button></div></div>`).join(""));
+</script></div></section>
+
+<section id="analysis" class="panel"><div class="section"><div><h2>Skill Gap Analysis</h2><p>Data Analyst · TechNova · Bengaluru</p></div><span style="font-size:10px;color:#75849c">AGENT RESULT</span></div><div class="analysis"><div class="card"><div style="display:flex;justify-content:space-between"><div><small style="color:#8295ad">Current match</small><div class="big">84%</div></div><span class="percent">STRONG FIT</span></div><div class="bar"><i></i></div><div class="gap"><span>Python</span><span class="pill yes">✓ You have it</span></div><div class="gap"><span>SQL</span><span class="pill yes">✓ You have it</span></div><div class="gap"><span>Excel</span><span class="pill yes">✓ You have it</span></div><div class="gap"><span>Power BI</span><span class="pill no">+ Missing</span></div><div class="gap"><span>Statistics</span><span class="pill no">+ Improve</span></div></div><div class="card"><h3 style="font:700 16px 'Space Grotesk';margin-top:0">Why this job matches</h3><p style="font-size:11px;line-height:1.7;color:#8b9bb2">Your profile already covers the core Python, SQL and Excel requirements. The main gaps for this posting are Power BI and applied statistics.</p><div class="trace"><div><i></i>Profile Agent — understood your skills</div><div><i></i>Matching Agent — compared job requirements</div><div><i></i>Gap Agent — identified 2 priority gaps</div><div><i></i>Training Agent — found learning options</div></div><button class="btn primary" style="margin-top:20px" onclick="show('learning',document.querySelectorAll('.nav button')[4])">Build Learning Path →</button></div></div></section>
+
+<section id="learning" class="panel"><div class="section"><div><h2>Your Learning Path</h2><p>A focused plan built around your missing skills.</p></div></div><div class="card"><div style="display:flex;justify-content:space-between;margin-bottom:15px"><div><small style="color:#8190a7">TIME TO READY</small><h1 style="font:700 38px 'Space Grotesk';margin:4px 0">6 weeks</h1></div><div style="text-align:right"><small style="color:#8190a7">ESTIMATED COST</small><h2 style="color:#18aa76;margin:4px 0">₹0</h2></div></div><div class="course"><div><h4>01 · Power BI Fundamentals</h4><p>Dashboards · Reports · Visualization · Practice</p></div><b>3 WEEKS</b></div><div class="course"><div><h4>02 · Applied Statistics</h4><p>Statistics · Probability · Hypothesis Testing</p></div><b>2 WEEKS</b></div><div class="course"><div><h4>03 · Portfolio Analytics Project</h4><p>Build and present a practical data-analysis project</p></div><b>1 WEEK</b></div><button class="btn primary" style="margin-top:20px" onclick="toast('Learning path saved ✦')">Save Learning Path</button></div></section>
+
+<section id="ai" class="panel"><div class="section"><div><h2>AI Career Assistant</h2><p>Your conversational entry point into the agent workflow.</p></div></div><div class="ai-grid"><div class="dark-panel chat"><div class="ai-title"><div><b style="font:700 18px 'Space Grotesk'">SkillPath AI</b><div class="muted" style="font-size:10px;margin-top:3px">Your career co-pilot</div></div><span class="online">● Online</span></div><div class="bubble">Hi! 👋<br><br>I can help you find suitable jobs, analyze your current skills, identify gaps, and create a personalized learning path.</div><div class="quick"><button onclick="toast('Job matching agent started')">⌕ Find suitable jobs</button><button onclick="show('analysis',document.querySelectorAll('.nav button')[3])">◈ Analyze my skills</button><button onclick="show('learning',document.querySelectorAll('.nav button')[4])">▤ Suggest learning path</button><button onclick="toast('Resume analysis agent started')">▧ Improve my resume</button></div><div class="input-dark"><input placeholder="What would you like to do today?"><button onclick="toast('Agent workflow started ✦')">→</button></div></div><div class="dark-panel"><h3 style="font:700 17px 'Space Grotesk';margin-top:0">Your Learning Journey</h3><div class="journey"><div class="step done"><span class="step-dot">✓</span><div><b>Complete Profile</b><p>Tell us about your skills and goals</p></div></div><div class="step done"><span class="step-dot">✓</span><div><b>Get Job Matches</b><p>Find relevant opportunities</p></div></div><div class="step current"><span class="step-dot">3</span><div><b>Analyze Skill Gaps</b><p>Discover missing skills</p></div></div><div class="step"><span class="step-dot">4</span><div><b>Get Learning Plan</b><p>Personalized courses and resources</p></div></div><div class="step"><span class="step-dot">5</span><div><b>Become Job Ready</b><p>Track progress toward your goal</p></div></div></div></div></div></section>
+</div></main></div>
+<div id="toast" style="position:fixed;right:24px;bottom:24px;max-width:min(420px,calc(100vw - 48px));background:linear-gradient(135deg,#123a5a,#087f8c 58%,#16b8b0);color:#f4ffff;border:1px solid rgba(126,244,255,.8);padding:15px 20px 15px 18px;border-radius:14px;box-shadow:0 14px 38px rgba(0,0,0,.55),0 0 26px rgba(22,184,176,.4);font-size:13px;font-weight:700;line-height:1.4;text-shadow:0 1px 2px rgba(0,20,32,.5);opacity:0;transform:translateY(12px);transition:.25s;z-index:99"></div>
+<script>
+const names={home:"Home",profile:"My Profile",jobs:"Find Jobs",analysis:"Skill Analysis",learning:"Learning Path",ai:"AI Assistant"};
+function show(id,btn){document.querySelectorAll(".panel").forEach(x=>x.classList.remove("active"));document.getElementById(id).classList.add("active");document.querySelectorAll(".nav button").forEach(x=>x.classList.remove("active"));if(btn)btn.classList.add("active");window.scrollTo({top:0,behavior:"smooth"})}
+function analyze(){toast("Agent workflow started: Profile → Match → Gap → Learning");setTimeout(()=>show("analysis",document.querySelectorAll(".nav button")[3]),700)}
+function toast(msg){const t=document.getElementById("toast");t.textContent=msg;t.style.opacity=1;t.style.transform="translateY(0)";setTimeout(()=>{t.style.opacity=0;t.style.transform="translateY(12px)"},2300)}
+
+const landingShell = document.getElementById('landingShell');
+const appSection = document.getElementById('app');
+const loginForm = document.getElementById('loginForm');
+const signupForm = document.getElementById('signupForm');
+const authSwitch = document.getElementById('authSwitch');
+
+function dashboardLogin(name) {
+  const displayName = name || 'User';
+  const helloTag = document.querySelector('.hello b');
+  if (helloTag) helloTag.textContent = displayName;
+  landingShell.style.display = 'none';
+  appSection.style.display = 'flex';
+}
+
+loginForm.addEventListener('submit', function(event){
+  event.preventDefault();
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value.trim();
+  if (!email || !password) {
+    toast('Please enter your email and password');
+    return;
+  }
+  const displayName = email.split('@')[0].replace(/[._-]/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+  dashboardLogin(displayName);
+});
+
+function showSignupForm(event){
+  if (event) event.preventDefault();
+  loginForm.style.display = 'none';
+  signupForm.style.display = 'block';
+  document.getElementById('authTitle').textContent = 'Create account';
+  authSwitch.innerHTML = 'Already have an account? <a href="#" id="showLogin">Log in</a>';
+  document.getElementById('showLogin').addEventListener('click', function(loginEvent){
+    loginEvent.preventDefault();
+    signupForm.style.display = 'none';
+    loginForm.style.display = 'block';
+    document.getElementById('authTitle').textContent = 'Login';
+    authSwitch.innerHTML = 'New here? <a href="#" id="showSignup">Create an account</a>';
+    document.getElementById('showSignup').addEventListener('click', showSignupForm);
+  }, {once:true});
+}
+
+document.getElementById('showSignup').addEventListener('click', showSignupForm);
+
+signupForm.addEventListener('submit', function(event){
+  event.preventDefault();
+  const password = document.getElementById('signupPassword').value;
+  const confirmation = document.getElementById('signupConfirm').value;
+  if (password !== confirmation) {
+    toast('Passwords do not match');
+    return;
+  }
+  signupForm.style.display = 'none';
+  loginForm.style.display = 'block';
+  document.getElementById('authTitle').textContent = 'Login';
+  document.getElementById('email').value = '';
+  document.getElementById('password').value = '';
+  authSwitch.innerHTML = 'New here? <a href="#" id="showSignup">Create an account</a>';
+  document.getElementById('showSignup').addEventListener('click', showSignupForm);
+  toast('Account created, Please log in.');
+});
+</script>
+</body>
+</html>
