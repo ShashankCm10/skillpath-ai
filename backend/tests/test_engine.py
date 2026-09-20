@@ -1,4 +1,4 @@
-from app.engine import build_gap, match_jobs, normalize_skill, parse_profile, select_target_job
+from app.engine import build_gap, career_domains, course_for_skill, match_jobs, normalize_skill, parse_profile, select_target_job
 from app.data import DEFAULT_PROFILE, JOBS
 
 def test_skill_normalization():
@@ -59,3 +59,58 @@ def test_vlsi_profile_selects_electronics_target():
     assert target["domain"] == "Electronics"
     assert "VLSI" in target["title"]
     assert target["id"] != "job-36"
+
+
+def test_career_domains_and_supplied_profile_do_not_inherit_defaults():
+    profile = parse_profile({
+        "education": "B.E. Electronics and Communication Engineering",
+        "skills": ["VLSI & Digital Design", "MATLAB"],
+        "location": "Bengaluru",
+        "interests": ["Electronics Engineer"],
+        "target_role": "Electronics Engineer",
+    })
+
+    assert career_domains(profile["target_role"], profile["interests"], profile["skills"], profile["education"]) >= {"electronics"}
+    assert profile["skills"] == ["Vlsi & Digital Design", "Matlab"]
+    assert "Python" not in profile["skills"]
+    assert "JavaScript" not in profile["skills"]
+    assert "FastAPI" not in profile["skills"]
+
+
+def test_electronics_training_maps_all_vlsi_gaps_and_free_only_recalculates():
+    profile = parse_profile({
+        "education": "B.E. Electronics and Communication Engineering",
+        "skills": ["VLSI & Digital Design", "MATLAB"],
+        "location": "Bengaluru",
+        "interests": ["Electronics Engineer"],
+        "target_role": "Electronics Engineer",
+    })
+    job = match_jobs(profile)[0]
+    paid = build_gap(job, profile)
+    free = build_gap(job, profile, free_only=True)
+
+    assert job["title"] == "VLSI Design Engineer"
+    assert paid["resources"]
+    assert paid["total_weeks"] > 0
+    assert paid["total_cost"] > free["total_cost"]
+    assert paid["total_weeks"] > free["total_weeks"]
+    assert "VLSI & Digital Design" not in paid["missing_required_skills"]
+    assert {gap["skill"] for gap in paid["gaps"]} >= {"Digital Electronics", "Verilog", "Circuit Analysis", "SystemVerilog", "FPGA"}
+    assert all(resource["is_free"] for resource in free["resources"])
+
+
+def test_training_course_matching_is_canonical_and_domain_aware():
+    assert course_for_skill("Vlsi")
+    assert course_for_skill("MATLAB")
+    assert course_for_skill("FPGA")
+    assert "Verilog" in course_for_skill("Verilog")["skills_taught"]
+    assert "SystemVerilog" in course_for_skill("SystemVerilog")["skills_taught"]
+    assert course_for_skill("SystemVerilog")["title"] != "PCB Design Fundamentals"
+    assert "Financial Analysis" in course_for_skill("Financial Analysis")["skills_taught"]
+
+    software = parse_profile({"skills": ["Python", "React", "FastAPI", "SQL"], "target_role": "Full Stack Developer", "interests": ["Software Engineering"]})
+    software_gap = build_gap(match_jobs(software)[0], software)
+
+    assert any("Python" in resource["skills_taught"] or "JavaScript" in resource["skills_taught"] for resource in software_gap["resources"])
+    finance_course = course_for_skill("Financial Analysis")
+    assert "Financial Analysis" in finance_course["skills_taught"] or "Accounting" in finance_course["skills_taught"]

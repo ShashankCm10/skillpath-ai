@@ -813,28 +813,46 @@ function JobsPage({
 }) {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [query, setQuery] = useState("");
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
-    const params = new URLSearchParams();
-    profile.skills.forEach((skill) => params.append("skills", skill));
-    profile.interests.forEach((interest) => params.append("interests", interest));
-    params.set("education", profile.education);
-    params.set("target_role", profile.target_role);
-    params.set("experience", profile.experience);
-    params.set("resume_text", profile.resume_text || "");
-    api<{ jobs: Job[] }>(`/jobs?${params.toString()}`)
-      .then((r) => setJobs(r.jobs))
-      .catch(() => setJobs([]));
-  }, [profile.skills, profile.interests, profile.education, profile.target_role, profile.experience, profile.resume_text]);
+    setLoading(true);
+
+    api<Analysis>("/analyze", {
+      method: "POST",
+      body: JSON.stringify({ profile }),
+    })
+      .then((result) => {
+        setJobs(result.matches || []);
+      })
+      .catch(() => {
+        setJobs([]);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, [
+    profile.skills,
+    profile.interests,
+    profile.education,
+    profile.location,
+    profile.target_role,
+    profile.experience,
+    profile.resume_text,
+  ]);
+
   const shown = jobs.filter((j) =>
-    JSON.stringify(j).toLowerCase().includes(query.toLowerCase()),
+    JSON.stringify(j).toLowerCase().includes(query.toLowerCase())
   );
+
   return (
     <>
       <Section
         title="Find Jobs"
-        subtitle="Explore curated postings and see exactly why they match."
-        action={<span className="eyebrow">40+ CURATED POSTINGS</span>}
+        subtitle="Explore jobs matched to your current career profile."
+        action={<span className="eyebrow">PERSONALIZED MATCHES</span>}
       />
+
       <div className="filterbar">
         <div className="input-icon">
           <Search size={15} />
@@ -844,13 +862,24 @@ function JobsPage({
             onChange={(e) => setQuery(e.target.value)}
           />
         </div>
-        <span>{shown.length} roles</span>
+        <span>{shown.length} matched roles</span>
       </div>
-      <div className="jobs">
-        {shown.map((j) => (
-          <JobCard job={j} key={j.id} go={go} />
-        ))}
-      </div>
+
+      {loading ? (
+        <div className="empty-card">
+          Finding jobs for {profile.target_role || "your career profile"}...
+        </div>
+      ) : shown.length === 0 ? (
+        <div className="empty-card">
+          No matching jobs found for your current profile.
+        </div>
+      ) : (
+        <div className="jobs">
+          {shown.map((j) => (
+            <JobCard job={j} key={j.id} go={go} />
+          ))}
+        </div>
+      )}
     </>
   );
 }

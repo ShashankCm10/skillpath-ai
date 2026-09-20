@@ -86,6 +86,7 @@ def jobs(
         "education": education,
         "target_role": target_role,
         "experience": experience,
+        "location": location,
         "resume_text": resume_text,
     }) if has_profile else JOBS
     if q: items = [j for j in items if q.lower() in json.dumps(j).lower()]

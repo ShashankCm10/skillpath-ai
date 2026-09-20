@@ -53,6 +53,7 @@ def test_jobs_endpoint_uses_the_supplied_profile():
             ("interests", "Electrical Engineering"),
             ("interests", "Electronics"),
             ("target_role", "Electrical Engineer"),
+            ("location", "Bengaluru"),
         ],
     )
     software = request(
@@ -66,6 +67,7 @@ def test_jobs_endpoint_uses_the_supplied_profile():
             ("interests", "Software Engineering"),
             ("interests", "Web Development"),
             ("target_role", "Full Stack Developer"),
+            ("location", "Bengaluru"),
         ],
     )
 
@@ -74,6 +76,29 @@ def test_jobs_endpoint_uses_the_supplied_profile():
     assert electrical.json()["jobs"][0]["domain"] in {"Electrical", "Electronics"}
     assert software.json()["jobs"][0]["domain"] == "Software/IT"
     assert electrical.json()["jobs"][0]["id"] != software.json()["jobs"][0]["id"]
+
+
+def test_analyze_preserves_current_skill_payload_without_defaults():
+    response = request(
+        "POST",
+        "/api/analyze",
+        json={
+            "profile": {
+                "education": "B.E. Electronics and Communication Engineering",
+                "skills": ["VLSI & Digital Design", "MATLAB"],
+                "location": "Bengaluru",
+                "interests": ["Electronics Engineer"],
+                "target_role": "Electronics Engineer",
+            }
+        },
+    )
+
+    assert response.status_code == 200
+    profile = response.json()["profile"]
+    assert profile["skills"] == ["Vlsi & Digital Design", "Matlab"]
+    assert "Python" not in profile["skills"]
+    assert "JavaScript" not in profile["skills"]
+    assert response.json()["target_job"]["domain"] in {"Electronics", "Electrical"}
 
 
 def test_analyze_uses_current_profile_target():
