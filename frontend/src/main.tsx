@@ -102,6 +102,16 @@ const demoProfile: Profile = {
   target_role: "Full Stack Developer",
   experience: "0–2 years",
 };
+const emptyProfile: Profile = {
+  name: "",
+  education: "",
+  skills: [],
+  location: "",
+  interests: [],
+  target_role: "",
+  experience: "",
+  resume_text: "",
+};
 const parseListInput = (value: string): string[] => {
   if (!value || !value.trim()) return [];
 
@@ -136,7 +146,7 @@ async function api<T>(path: string, options?: RequestInit): Promise<T> {
 function App() {
   const [authed, setAuthed] = useState(false);
   const [authMode, setAuthMode] = useState<"login" | "signup">("login");
-  const [profile, setProfile] = useState<Profile>(demoProfile);
+  const [profile, setProfile] = useState<Profile>(emptyProfile);
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
   const [toast, setToast] = useState("");
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -156,6 +166,20 @@ function App() {
     setProfile(nextProfile);
     setAnalysis(null);
     localStorage.removeItem("skillpath-selected-job");
+  };
+  const runAnalysis = async (jobId?: string) => {
+    try {
+      const r = await api<Analysis>("/analyze", {
+        method: "POST",
+        body: JSON.stringify({ profile, ...(jobId ? { job_id: jobId } : {}) }),
+      });
+      setAnalysis(r);
+      localStorage.removeItem("skillpath-selected-job");
+      notify("Agent workflow complete");
+      navigate("/analysis");
+    } catch {
+      notify("Unable to analyze this job. Check that the backend is running.");
+    }
   };
   if (!authed)
     return (
@@ -240,39 +264,17 @@ function App() {
             <ProfilePage
               profile={profile}
               setProfile={updateProfile}
-              onAnalyze={async () => {
-                try {
-                  const r = await api<Analysis>("/analyze", {
-                    method: "POST",
-                    body: JSON.stringify({ profile }),
-                  });
-                  setAnalysis(r);
-                  notify("Agent workflow complete");
-                  navigate("/analysis");
-                } catch {
-                  notify("Start the backend to run analysis");
-                }
-              }}
+              onAnalyze={() => runAnalysis()}
             />
           )}{" "}
           {page === "jobs" && (
-            <JobsPage profile={profile} go={go} />
+            <JobsPage profile={profile} go={go} onAnalyze={runAnalysis} />
           )}{" "}
           {page === "analysis" && (
             <AnalysisPage
               analysis={analysis}
               profile={profile}
-              run={async (jobId) => {
-                try {
-                  const r = await api<Analysis>("/analyze", {
-                    method: "POST",
-                    body: JSON.stringify({ profile, job_id: jobId }),
-                  });
-                  setAnalysis(r);
-                } catch {
-                  notify("Backend unavailable");
-                }
-              }}
+              run={runAnalysis}
               go={go}
             />
           )}{" "}
@@ -807,9 +809,11 @@ function Field({
 function JobsPage({
   profile,
   go,
+  onAnalyze,
 }: {
   profile: Profile;
   go: (x: string) => void;
+  onAnalyze: (jobId?: string) => Promise<void>;
 }) {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [query, setQuery] = useState("");
@@ -876,14 +880,14 @@ function JobsPage({
       ) : (
         <div className="jobs">
           {shown.map((j) => (
-            <JobCard job={j} key={j.id} go={go} />
+            <JobCard job={j} key={j.id} go={go} onAnalyze={onAnalyze} />
           ))}
         </div>
       )}
     </>
   );
 }
-function JobCard({ job, go }: { job: Job; go: (x: string) => void }) {
+function JobCard({ job, go, onAnalyze }: { job: Job; go: (x: string) => void; onAnalyze?: (jobId?: string) => Promise<void> }) {
   return (
     <div className="card job">
       <div className="jobtop">
@@ -913,6 +917,10 @@ function JobCard({ job, go }: { job: Job; go: (x: string) => void }) {
         </span>
         <button
           onClick={() => {
+            if (onAnalyze) {
+              void onAnalyze(job.id);
+              return;
+            }
             localStorage.setItem("skillpath-selected-job", job.id);
             go("analysis");
           }}
