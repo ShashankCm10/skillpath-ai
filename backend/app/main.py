@@ -1,4 +1,5 @@
 from __future__ import annotations
+from fastapi.middleware.cors import CORSMiddleware
 
 import json
 import os
@@ -25,6 +26,17 @@ app.add_middleware(
         "https://skillpath-ai-hazel-ten.vercel.app",
     ])),
     allow_origin_regex=r"https?://(localhost|127\.0\.0\.1):517[0-9]+",
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "https://skillpath-ai-hazel-ten.vercel.app",
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
