@@ -27,7 +27,9 @@ import {
 } from "lucide-react";
 import "./styles.css";
 
-const API = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
+const API_BASE_URL = (
+  import.meta.env.VITE_API_URL || "https://skillpath-ai-1jzi.onrender.com"
+).replace(/\/+$/, "").replace(/\/api$/, "");
 type Profile = {
   name: string;
   education: string;
@@ -138,7 +140,7 @@ async function api<T>(path: string, options?: RequestInit): Promise<T> {
     options?.body instanceof FormData
       ? { ...(options?.headers || {}) }
       : { "Content-Type": "application/json", ...(options?.headers || {}) };
-  const res = await fetch(`${API}${path}`, { ...options, headers });
+  const res = await fetch(`${API_BASE_URL}/api${path}`, { ...options, headers });
   if (!res.ok) throw new Error(await res.text());
   return res.json();
 }
