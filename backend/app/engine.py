@@ -21,11 +21,22 @@ ALIASES = {
     "react": "React", "html5": "HTML", "css3": "CSS", "postgres": "SQL", "postgresql": "SQL",
     "fast api": "FastAPI", "fastapi": "FastAPI", "rest": "REST APIs", "rest api": "REST APIs", "ml": "Machine Learning",
     "tensorflow": "TensorFlow", "pytorch": "PyTorch", "k8s": "Kubernetes", "a/b testing": "A/B Testing",
+    "mba": "MBA", "hr": "HR", "ai": "AI", "ux": "UX Design", "ui": "UX Design", "mlops": "MLOps",
 }
 
 def normalize_skill(value: str) -> str:
     raw = re.sub(r"\s+", " ", value.strip())
-    return ALIASES.get(raw.lower(), raw.title() if raw.lower() not in {"sql", "html", "css", "git", "aws", "nlp"} else raw.upper())
+    if not raw:
+        return ""
+
+    lowered = raw.lower()
+    if lowered in ALIASES:
+        return ALIASES[lowered]
+
+    if raw.upper() in {"MBA", "HR", "AI", "ML", "SQL", "HTML", "CSS", "AWS", "NLP", "UX", "UI"}:
+        return raw.upper()
+
+    return raw.title() if raw.lower() not in {"sql", "html", "css", "git", "aws", "nlp", "ai", "ui", "ux"} else raw.upper()
 
 def normalize_skills(values: list[str] | str | None) -> list[str]:
     if not values: return []
@@ -45,10 +56,10 @@ def semantic_similarity(profile_text: str, job: dict[str, Any]) -> float:
         from sentence_transformers import SentenceTransformer, util  # type: ignore
         model = _embedding_model()
         a = model.encode(profile_text, convert_to_tensor=True)
-        b = model.encode(" ".join([job["title"], *job["required_skills"], *job["interests"]]), convert_to_tensor=True)
+        b = model.encode(" ".join([job["title"], job.get("domain", ""), *job["required_skills"], *job["preferred_skills"], *job["interests"]]), convert_to_tensor=True)
         return round(max(0.0, min(1.0, float(util.cos_sim(a, b)[0][0]))), 4)
     except Exception:
-        a, b = tokenize(profile_text), tokenize(" ".join([job["title"], *job["required_skills"], *job["interests"]]))
+        a, b = tokenize(profile_text), tokenize(" ".join([job["title"], job.get("domain", ""), *job["required_skills"], *job["preferred_skills"], *job["interests"]]))
         return round(len(a & b) / max(1, len(a | b)), 4)
 
 @lru_cache(maxsize=1)
@@ -58,21 +69,32 @@ def _embedding_model() -> Any:
 
 def parse_profile(profile: dict[str, Any] | None = None, resume_text: str = "") -> dict[str, Any]:
     incoming = {**DEFAULT_PROFILE, **(profile or {})}
-    text = " ".join(str(v) for v in incoming.values()) + " " + resume_text
+    if profile is not None:
+        incoming["skills"] = profile.get("skills", [])
+        incoming["interests"] = profile.get("interests", [])
+        incoming["resume_text"] = resume_text or profile.get("resume_text", "")
+
+    text = incoming.get("resume_text", "")
     skills = normalize_skills(incoming.get("skills"))
-    known = ["Python", "JavaScript", "React", "HTML", "CSS", "SQL", "Git", "FastAPI", "Docker", "AWS", "Machine Learning", "TensorFlow", "PyTorch", "Kubernetes", "Power BI", "Statistics", "Excel", "REST APIs", "TypeScript", "Testing", "Linux", "CI/CD", "Analytics", "A/B Testing", "NLP", "Pandas", "OpenCV", "Communication"]
-    lower = text.lower()
-    for skill in known:
-        if skill.lower() in lower and skill not in skills: skills.append(skill)
+
+    known_skills = {
+        normalize_skill(skill)
+        for job in JOBS
+        for skill in [*job["required_skills"], *job["preferred_skills"]]
+    }
+    for skill in sorted(known_skills, key=len, reverse=True):
+        if skill.lower() in text.lower() and skill not in skills:
+            skills.append(skill)
+
     incoming["skills"] = skills
     incoming["resume_text"] = resume_text or incoming.get("resume_text", "")
     return incoming
 
 def match_jobs(profile: dict[str, Any], jobs: list[dict[str, Any]] = JOBS) -> list[dict[str, Any]]:
     skills = set(normalize_skills(profile.get("skills")))
-    interests = {str(x).lower() for x in profile.get("interests", [])}
+    interests = {normalize_skill(str(x)).lower() for x in profile.get("interests", [])}
     location = str(profile.get("location", "")).lower()
-    profile_text = " ".join([str(profile.get("target_role", "")), str(profile.get("experience", "")), *skills, *interests, str(profile.get("resume_text", ""))])
+    profile_text = " ".join([str(profile.get("target_role", "")), str(profile.get("education", "")), str(profile.get("experience", "")), *skills, *interests, str(profile.get("resume_text", ""))])
     results = []
     for job in jobs:
         required = normalize_skills(job["required_skills"]); preferred = normalize_skills(job["preferred_skills"])
@@ -81,10 +103,27 @@ def match_jobs(profile: dict[str, Any], jobs: list[dict[str, Any]] = JOBS) -> li
         skill_score = (len(matched) + 0.5 * len(matched_pref)) / max(1, len(required) + 0.5 * len(preferred))
         semantic = semantic_similarity(profile_text, job)
         location_score = 1.0 if location and location in job["location"].lower() else 0.45
-        interest_score = min(1.0, len(interests & {x.lower() for x in job["interests"]}) / max(1, len(job["interests"])))
+        job_interests = {normalize_skill(str(x)).lower() for x in job["interests"]}
+        interest_score = min(1.0, len(interests & job_interests) / max(1, len(job_interests)))
         score = round(100 * (skill_score * .4 + semantic * .4 + location_score * .1 + interest_score * .1))
         results.append({**job, "score": score, "skill_score": round(skill_score * 100), "semantic_similarity": round(semantic * 100), "location_compatibility": round(location_score * 100), "interest_compatibility": round(interest_score * 100), "matched_skills": matched, "missing_skills": missing, "matched_preferred_skills": matched_pref, "missing_preferred_skills": missing_pref})
     return sorted(results, key=lambda x: (-x["score"], x["id"]))
+
+def select_target_job(matches: list[dict[str, Any]], profile: dict[str, Any], job_id: str | None = None) -> dict[str, Any] | None:
+    if not matches:
+        return None
+    if job_id:
+        selected = next((job for job in matches if job["id"] == job_id), None)
+        if selected:
+            return selected
+
+    target_role = normalize_skill(str(profile.get("target_role", ""))).lower()
+    if target_role:
+        exact = [job for job in matches if target_role in normalize_skill(job["title"]).lower()]
+        if exact:
+            return exact[0]
+
+    return max(matches, key=lambda job: (job["score"], job["semantic_similarity"], job["interest_compatibility"], job["skill_score"]))
 
 def course_for_skill(skill: str, free_only: bool = False) -> dict[str, Any] | None:
     matches = [c for c in COURSES if skill in c["skills_taught"] and (not free_only or c["is_free"])]
@@ -119,13 +158,13 @@ class Workflow:
             graph = StateGraph(dict)
             graph.add_node("profile_parsing", lambda s: {**s, "parsed": parse_profile(s["profile"], s["profile"].get("resume_text", ""))})
             graph.add_node("job_matching", lambda s: {**s, "matches": match_jobs(s["parsed"])})
-            graph.add_node("gap_analysis", lambda s: {**s, "target": next((j for j in s["matches"] if j["id"] == s.get("job_id")), s["matches"][0] if s["matches"] else None)})
+            graph.add_node("gap_analysis", lambda s: {**s, "target": select_target_job(s["matches"], s["parsed"], s.get("job_id"))})
             graph.add_node("training_recommendation", lambda s: {**s, "gap": build_gap(s["target"], s["parsed"], s["free_only"]) if s.get("target") else None})
             graph.add_node("roadmap", lambda s: s)
             graph.add_edge(START, "profile_parsing"); graph.add_edge("profile_parsing", "job_matching"); graph.add_edge("job_matching", "gap_analysis"); graph.add_edge("gap_analysis", "training_recommendation"); graph.add_edge("training_recommendation", "roadmap"); graph.add_edge("roadmap", END)
             state = graph.compile().invoke(state)
         else:
-            state["parsed"] = parse_profile(profile, profile.get("resume_text", "")); state["matches"] = match_jobs(state["parsed"]); state["target"] = next((j for j in state["matches"] if j["id"] == job_id), state["matches"][0] if state["matches"] else None); state["gap"] = build_gap(state["target"], state["parsed"], free_only) if state.get("target") else None
+            state["parsed"] = parse_profile(profile, profile.get("resume_text", "")); state["matches"] = match_jobs(state["parsed"]); state["target"] = select_target_job(state["matches"], state["parsed"], job_id); state["gap"] = build_gap(state["target"], state["parsed"], free_only) if state.get("target") else None
         self.log("Profile Parsing Agent", "Normalized profile skills and extracted target role")
         self.log("Job Matching Agent", f"Evaluated {len(state.get('matches', []))} curated jobs with deterministic scoring")
         target, gap = state.get("target"), state.get("gap")

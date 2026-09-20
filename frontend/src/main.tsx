@@ -51,6 +51,7 @@ type Job = {
   matched_skills?: string[];
   missing_skills?: string[];
   semantic_similarity?: number;
+  domain?: string;
 };
 type Course = {
   id: string;
@@ -101,6 +102,16 @@ const demoProfile: Profile = {
   target_role: "Full Stack Developer",
   experience: "0–2 years",
 };
+const parseListInput = (value: string): string[] => {
+  if (!value || !value.trim()) return [];
+
+  const pieces = value
+    .split(",")
+    .map((item) => item.trim().replace(/\s+/g, " "))
+    .filter(Boolean);
+
+  return pieces.length ? pieces : [value.trim().replace(/\s+/g, " ")];
+};
 const iconFor = (key: string) =>
   ({
     home: <Home size={17} />,
@@ -141,6 +152,11 @@ function App() {
     setProfile((p) => ({ ...p, name: name || p.name }));
     navigate("/home");
   };
+  const updateProfile = (nextProfile: Profile) => {
+    setProfile(nextProfile);
+    setAnalysis(null);
+    localStorage.removeItem("skillpath-selected-job");
+  };
   if (!authed)
     return (
       <Auth
@@ -149,6 +165,8 @@ function App() {
         onLogin={login}
         onDemo={() => {
           setProfile(demoProfile);
+          setAnalysis(null);
+          localStorage.removeItem("skillpath-selected-job");
           login("Demo User");
         }}
         notify={notify}
@@ -221,7 +239,7 @@ function App() {
           {page === "profile" && (
             <ProfilePage
               profile={profile}
-              setProfile={setProfile}
+              setProfile={updateProfile}
               onAnalyze={async () => {
                 try {
                   const r = await api<Analysis>("/analyze", {
@@ -238,7 +256,7 @@ function App() {
             />
           )}{" "}
           {page === "jobs" && (
-            <JobsPage profile={profile} go={go} analysis={analysis} />
+            <JobsPage profile={profile} go={go} />
           )}{" "}
           {page === "analysis" && (
             <AnalysisPage
@@ -637,39 +655,21 @@ function ProfilePage({
             value={profile.location}
             onChange={(v) => update("location", v)}
           />
-          <Field
+          <ListTagField
             label="Career interest"
-            value={profile.interests.join(", ")}
-            onChange={(v) =>
-              update(
-                "interests",
-                v
-                  .split(",")
-                  .map((x) => x.trim())
-                  .filter(Boolean),
-              )
-            }
+            items={profile.interests}
+            onChange={(v) => update("interests", v)}
           />
           <Field
             label="Target role"
             value={profile.target_role}
             onChange={(v) => update("target_role", v)}
           />
-          <div className="field full">
-            <label>Skills (comma separated)</label>
-            <input
-              value={profile.skills.join(", ")}
-              onChange={(e) =>
-                update(
-                  "skills",
-                  e.target.value
-                    .split(",")
-                    .map((x) => x.trim())
-                    .filter(Boolean),
-                )
-              }
-            />
-          </div>
+          <ListTagField
+            label="Skills"
+            items={profile.skills}
+            onChange={(v) => update("skills", v)}
+          />
           <div className="field full">
             <label>Resume upload</label>
             <div className="upload">
@@ -710,6 +710,69 @@ function ProfilePage({
     </>
   );
 }
+function ListTagField({
+  label,
+  items,
+  onChange,
+}: {
+  label: string;
+  items: string[];
+  onChange: (v: string[]) => void;
+}) {
+  const [draft, setDraft] = useState("");
+
+  const commitCurrent = () => {
+    const nextTags = parseListInput(draft);
+    if (!nextTags.length) return;
+
+    const merged = [...new Set([...items, ...nextTags])];
+    onChange(merged);
+    setDraft("");
+  };
+
+  return (
+    <div className="field full">
+      <label>{label}</label>
+      <input
+        value={draft}
+        placeholder={
+          items.length ? "Add another item..." : "Type and press comma or Enter..."
+        }
+        onChange={(e) => setDraft(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "," || e.key === "Enter") {
+            e.preventDefault();
+            commitCurrent();
+          }
+
+          if (e.key === "Backspace" && !draft && items.length) {
+            e.preventDefault();
+            onChange(items.slice(0, -1));
+          }
+        }}
+      />
+      {items.length > 0 && (
+        <div className="tags" style={{ marginTop: 10 }}>
+          {items.map((item) => (
+            <span className="tag" key={item}>
+              {item}
+              <button
+                type="button"
+                aria-label={`Remove ${item}`}
+                title={`Remove ${item}`}
+                onClick={() => onChange(items.filter((value) => value !== item))}
+                style={{ border: 0, background: "transparent", color: "inherit", padding: 0, marginLeft: 4, lineHeight: 1 }}
+              >
+                <X size={10} />
+              </button>
+            </span>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function Field({
   label,
   value,
@@ -744,20 +807,24 @@ function Field({
 function JobsPage({
   profile,
   go,
-  analysis,
 }: {
   profile: Profile;
   go: (x: string) => void;
-  analysis: Analysis | null;
 }) {
-  const [jobs, setJobs] = useState<Job[]>(analysis?.matches || []);
+  const [jobs, setJobs] = useState<Job[]>([]);
   const [query, setQuery] = useState("");
   useEffect(() => {
-    if (!analysis)
-      api<{ jobs: Job[] }>("/jobs")
-        .then((r) => setJobs(r.jobs))
-        .catch(() => {});
-  }, [analysis]);
+    const params = new URLSearchParams();
+    profile.skills.forEach((skill) => params.append("skills", skill));
+    profile.interests.forEach((interest) => params.append("interests", interest));
+    params.set("education", profile.education);
+    params.set("target_role", profile.target_role);
+    params.set("experience", profile.experience);
+    params.set("resume_text", profile.resume_text || "");
+    api<{ jobs: Job[] }>(`/jobs?${params.toString()}`)
+      .then((r) => setJobs(r.jobs))
+      .catch(() => setJobs([]));
+  }, [profile.skills, profile.interests, profile.education, profile.target_role, profile.experience, profile.resume_text]);
   const shown = jobs.filter((j) =>
     JSON.stringify(j).toLowerCase().includes(query.toLowerCase()),
   );
@@ -797,7 +864,7 @@ function JobCard({ job, go }: { job: Job; go: (x: string) => void }) {
             {job.company} · {job.location}
           </div>
         </div>
-        {job.score && <span className="percent">{job.score}%</span>}
+        {job.score !== undefined && <span className="percent">{job.score}%</span>}
       </div>
       <div className="tags">
         {job.required_skills.slice(0, 5).map((s) => (

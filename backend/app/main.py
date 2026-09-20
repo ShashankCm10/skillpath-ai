@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi import FastAPI, File, HTTPException, Query, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
@@ -14,7 +14,13 @@ from .llm import assistant_reply
 from .db import get_analysis, save_analysis
 
 app = FastAPI(title="SkillPath AI API", version="1.0.0")
-app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
+app.add_middleware(
+    CORSMiddleware,
+    allow_origin_regex=r"https?://(localhost|127\.0\.0\.1):517[0-9]+",
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 ANALYSES: dict[str, dict[str, Any]] = {}
 PROFILE: dict[str, Any] = DEFAULT_PROFILE.copy()
 try:
@@ -62,8 +68,26 @@ async def upload_resume(file: UploadFile = File(...)):
     return {"filename": file.filename, "text": text[:20000], "profile": parse_profile({**PROFILE, "resume_text": text}, text)}
 
 @app.get("/api/jobs")
-def jobs(q: str = "", location: str = "", work_mode: str = ""):
-    items = JOBS
+def jobs(
+    q: str = "",
+    location: str = "",
+    work_mode: str = "",
+    skills: list[str] = Query(default=[]),
+    interests: list[str] = Query(default=[]),
+    education: str = "",
+    target_role: str = "",
+    experience: str = "",
+    resume_text: str = "",
+):
+    has_profile = bool(skills or interests or education or target_role or experience or resume_text)
+    items = match_jobs({
+        "skills": skills,
+        "interests": interests,
+        "education": education,
+        "target_role": target_role,
+        "experience": experience,
+        "resume_text": resume_text,
+    }) if has_profile else JOBS
     if q: items = [j for j in items if q.lower() in json.dumps(j).lower()]
     if location: items = [j for j in items if location.lower() in j["location"].lower()]
     if work_mode: items = [j for j in items if work_mode.lower() == j["work_mode"].lower()]
