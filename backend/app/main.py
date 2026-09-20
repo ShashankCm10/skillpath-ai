@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 from typing import Any
 
@@ -14,8 +15,10 @@ from .llm import assistant_reply
 from .db import get_analysis, save_analysis
 
 app = FastAPI(title="SkillPath AI API", version="1.0.0")
+frontend_url = os.getenv("FRONTEND_URL", "").strip().rstrip("/")
 app.add_middleware(
     CORSMiddleware,
+    allow_origins=[frontend_url] if frontend_url else [],
     allow_origin_regex=r"https?://(localhost|127\.0\.0\.1):517[0-9]+",
     allow_credentials=True,
     allow_methods=["*"],
