@@ -18,7 +18,12 @@ app = FastAPI(title="SkillPath AI API", version="1.0.0")
 frontend_url = os.getenv("FRONTEND_URL", "").strip().rstrip("/")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[frontend_url] if frontend_url else [],
+    allow_origins=list(dict.fromkeys([
+        "https://skillpath-ai-hazel-ten.vercel.app",
+        frontend_url,
+    ] if frontend_url else [
+        "https://skillpath-ai-hazel-ten.vercel.app",
+    ])),
     allow_origin_regex=r"https?://(localhost|127\.0\.0\.1):517[0-9]+",
     allow_credentials=True,
     allow_methods=["*"],
